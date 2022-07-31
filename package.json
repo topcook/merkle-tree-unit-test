@@ -1,0 +1,13 @@
+{
+  "name": "exercise",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "fs": "^0.0.1-security"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
+}
