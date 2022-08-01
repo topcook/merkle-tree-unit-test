@@ -8,6 +8,7 @@
     "fs": "^0.0.1-security"
   },
   "scripts": {
-    "start": "node main.js"
+    "start-original": "node main.js",
+    "start": "node main_improvement.js"
   }
 }
