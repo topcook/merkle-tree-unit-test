@@ -9,6 +9,10 @@
   },
   "scripts": {
     "start-original": "node main.js",
-    "start": "node main_improvement.js"
+    "start": "node main_improvement.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^28.1.3"
   }
 }
