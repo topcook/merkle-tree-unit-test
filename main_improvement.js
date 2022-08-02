@@ -54,7 +54,6 @@ async function main() {
 
   leaves = leaves.map(leaf => hash(leaf.print()));
   let tree = createMerkleTree(leaves);
-  console.log("tree: ", tree);
   console.log('Root', tree.root, '\nTree', tree.nodes);
 
   let proof = createProof(tree, rv);
