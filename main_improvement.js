@@ -20,28 +20,28 @@ function createMerkleTree(leaves) {
   const maxDepth = 10;
 
   for (let i = 0; i < maxDepth; i++) {
-      let newNodes = createMerkleTreeLevel(leaves);
+    let newNodes = createMerkleTreeLevel(leaves);
 
-      tree.nodes.push(newNodes);
+    tree.nodes.push(newNodes);
 
-      if (newNodes.length == 1) {
-          tree.root = newNodes[0];
-          return tree;
-      } else {
-        leaves = newNodes;
-      }
+    if (newNodes.length == 1) {
+        tree.root = newNodes[0];
+        return tree;
+    } else {
+      leaves = newNodes;
+    }
   }
 }
 
 async function main() {
 
-  if (process.argv[2] == 0) {
+  if (process.argv[2] == 0 || typeof process.argv[2] === 'undefined') {
     console.log("Number of leaves is invalid");
     process.exit(9);
   }
 
   let leaves = [];
-  let currentIndex = 0;
+  // let currentIndex = 0;
 
   for (let leavesCreated = 0; leavesCreated < process.argv[2]; leavesCreated++) {  
 
@@ -54,6 +54,7 @@ async function main() {
 
   leaves = leaves.map(leaf => hash(leaf.print()));
   let tree = createMerkleTree(leaves);
+  console.log("tree: ", tree);
   console.log('Root', tree.root, '\nTree', tree.nodes);
 
   let proof = createProof(tree, rv);
@@ -63,14 +64,14 @@ async function main() {
   // Now we verify
   leaf = leaves[rv];
   for (const neighbour of proof) {
-      let preHash;
-      if (leaf < neighbour) {
-        preHash = leaf+neighbour;
-      } else {
-        preHash = neighbour+leaf;
-      }
+    let preHash;
+    if (leaf < neighbour) {
+      preHash = leaf+neighbour;
+    } else {
+      preHash = neighbour+leaf;
+    }
 
-      leaf = hash(preHash);
+    leaf = hash(preHash);
   }
 
   //Check validity
@@ -83,76 +84,76 @@ async function main() {
       treeWithoutRoot: ''
     }
 
-    currentIndex = leafIndex;
+    let currentIndex = leafIndex;
     resultObj.treeWithoutRoot = remLast(tree.nodes);
 
-      for (const nodesOfLevel of resultObj.treeWithoutRoot) {
-          let pairIndex = findIndex(currentIndex);
+    for (const nodesOfLevel of resultObj.treeWithoutRoot) {
+      let pairIndex = findIndex(currentIndex);
 
-          if (nodesOfLevel[pairIndex]) {
-            resultObj.merklePath.push(nodesOfLevel[pairIndex]);
-          } else {
-            resultObj.merklePath.push("");
-          }
-          currentIndex = reduceIndexForNextLevel(pairIndex);
+      if (nodesOfLevel[pairIndex]) {
+        resultObj.merklePath.push(nodesOfLevel[pairIndex]);
+      } else {
+        resultObj.merklePath.push("");
       }
+      currentIndex = reduceIndexForNextLevel(pairIndex);
+    }
 
-      return resultObj.merklePath;
+    return resultObj.merklePath;
   }
 
-  function findIndex() {
-      if (currentIndex % 2 == 0) return currentIndex + 1;
+  function findIndex(currentIndex) {
+    if (currentIndex % 2 == 0) return currentIndex + 1;
 
-      else return currentIndex - 1;
+    else return currentIndex - 1;
   }
 }
 
 function createMerkleTreeLevel(leaves) {
-    const numLeaves = leaves.length;
+  const numLeaves = leaves.length;
 
-    if (numLeaves < 2) {
-      return numLeaves == 1 ? [hash(leaves[0])] : [];
+  if (numLeaves < 2) {
+    return numLeaves == 1 ? [hash(leaves[0])] : [];
+  }
+
+  let treeNodes = [];
+  let a = "";
+  let b = a;
+
+  for (let i = 0; i < leaves.length; i++) {
+    let indexIsEvenCheck = i % 2;
+    if (indexIsEvenCheck == 0) a = leaves[i];
+    else {
+        b = leaves[i];
+        let preHash;
+        if (a < b) {
+          preHash = a+b;
+        } else {
+          preHash = b +a;
+        }
+
+        treeNodes.push(hash(preHash));
+
+        a = "";
+        b = "";
     }
+  }
 
-    let treeNodes = [];
-    let a = "";
-    let b = a;
+  if (leaves.length %2 == 1) {
+    treeNodes.push(hash(a));
+  }
 
-    for (let i = 0; i < leaves.length; i++) {
-      let indexIsEvenCheck = i % 2;
-      if (indexIsEvenCheck == 0) a = leaves[i];
-      else {
-          b = leaves[i];
-          let preHash;
-          if (a < b) {
-            preHash = a+b;
-          } else {
-            preHash = b +a;
-          }
-
-          treeNodes.push(hash(preHash));
-
-          a = "";
-          b = "";
-      }
-    }
-
-    if (leaves.length %2 == 1) {
-      treeNodes.push(hash(a));
-    }
-
-    return treeNodes;
+  return treeNodes;
 }
 
 function reduceIndexForNextLevel(index) {
-    return Math.trunc(index / 2);
+  return Math.trunc(index / 2);
 }
 
 function someMagicalHexValue(seed) {
-    const seedQuarter = seed / 4
-    let shiftedSeedQuarter = 1 << (seedQuarter)
-    const someVal = shiftedSeedQuarter * seed;
-    return someVal.toString(16);
+  const seedQuarter = seed / 4
+  let shiftedSeedQuarter = 1 << (seedQuarter)
+  const someVal = shiftedSeedQuarter * seed;
+  return someVal.toString(16);
 }
 
 function remLast(list) {
@@ -169,9 +170,9 @@ function hash(a) {
 }
 
 (async () => {
-    await main();
+  await main();
 })().catch(e => {
-    console.log(e);
-    process.exit(0);
+  console.log(e);
+  process.exit(0);
 }
 );
